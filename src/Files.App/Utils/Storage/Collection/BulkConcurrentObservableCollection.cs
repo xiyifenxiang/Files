@@ -300,9 +300,6 @@ namespace Files.App.Utils.Storage
 
 				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex), false);
 			}
-
-			if (IsGrouped)
-				ResetGroups();
 		}
 
 		public void AddRange(IEnumerable<T> items)
