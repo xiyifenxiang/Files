@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using Microsoft.Extensions.Logging;
 using Sentry;
 using System.IO;

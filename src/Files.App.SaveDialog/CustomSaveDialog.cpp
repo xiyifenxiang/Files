@@ -1,4 +1,4 @@
-// CustomSaveDialog.cpp: implementazione delle esportazioni DLL.
+﻿// CustomSaveDialog.cpp: implementazione delle esportazioni DLL.
 
 
 #include "pch.h"

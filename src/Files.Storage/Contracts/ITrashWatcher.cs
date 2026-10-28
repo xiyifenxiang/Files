@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Files Community
+﻿// Copyright (c) 2023 Files Community
 // Licensed under the MIT License.
 
 namespace Files.Storage

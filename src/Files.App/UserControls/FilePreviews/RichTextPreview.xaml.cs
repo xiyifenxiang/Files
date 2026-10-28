@@ -1,4 +1,4 @@
-using Files.App.ViewModels.Previews;
+﻿using Files.App.ViewModels.Previews;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Controls;
 using System.IO;

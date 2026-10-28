@@ -1,4 +1,4 @@
-using Microsoft.Graphics.Canvas.Geometry;
+﻿using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

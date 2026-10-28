@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using System;
@@ -8,7 +8,7 @@ namespace Files.Shared;
 public static class BackgroundSettings
 {
 	// Replaced by CD with the release environment name; Dev builds keep the placeholder
-	private const string AppEnvironmentName = "cd_app_env_placeholder";
+	private const string AppEnvironmentName = "SideloadStable";
 
 	public const string CloseToBackgroundKey = "CloseToBackground";
 	public static readonly bool CloseToBackgroundDefault = !IsDevEnvironment();

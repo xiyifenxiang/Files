@@ -1,4 +1,4 @@
-// pch.cpp: file di origine corrispondente all'intestazione precompilata
+﻿// pch.cpp: file di origine corrispondente all'intestazione precompilata
 
 #include "pch.h"
 

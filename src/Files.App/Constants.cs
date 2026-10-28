@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Windows.ApplicationModel;
@@ -11,13 +11,13 @@ namespace Files.App
 		public static class AutomatedWorkflowInjectionKeys
 		{
 
-			public const string GitHubClientId = "githubclientid.secret";
+			public const string GitHubClientId = "";
 
-			public const string BingMapsSecret = "bingmapskey.secret";
+			public const string BingMapsSecret = "";
 
-			public const string SentrySecret = "sentry.secret";
+			public const string SentrySecret = "";
 
-			public const string LanguageModelLafToken = "languagemodellaftoken.secret";
+			public const string LanguageModelLafToken = "";
 		}
 
 		public static class KnownImageFormats

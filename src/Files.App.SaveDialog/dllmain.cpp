@@ -1,4 +1,4 @@
-// dllmain.cpp: implementazione di DllMain.
+﻿// dllmain.cpp: implementazione di DllMain.
 
 #include "pch.h"
 #include "framework.h"

@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.Logging;
@@ -232,7 +232,7 @@ namespace Files.App.Services
 				try
 				{
 					var branch = await File.ReadAllTextAsync(branchFilePath, Encoding.UTF8);
-					if (!string.Equals(branch.Trim(), "files-dev", StringComparison.OrdinalIgnoreCase))
+					if (!string.Equals(branch.Trim(), "files-stable", StringComparison.OrdinalIgnoreCase))
 						return;
 				}
 				catch { }
@@ -242,7 +242,7 @@ namespace Files.App.Services
 				try
 				{
 					// Create branch file for users updating from versions earlier than v4.0.20.
-					await File.WriteAllTextAsync(branchFilePath, "files-dev", Encoding.UTF8);
+					await File.WriteAllTextAsync(branchFilePath, "files-stable", Encoding.UTF8);
 				}
 				catch { }
 			}

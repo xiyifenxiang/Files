@@ -1,4 +1,4 @@
-using ColorCode;
+﻿using ColorCode;
 using Files.App.ViewModels.Previews;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

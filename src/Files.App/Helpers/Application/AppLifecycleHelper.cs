@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Files.App.Helpers.Application;
@@ -72,7 +72,7 @@ namespace Files.App.Helpers
 		/// Gets the value that provides application environment or branch name.
 		/// </summary>
 		public static AppEnvironment AppEnvironment =>
-			Enum.TryParse("cd_app_env_placeholder", true, out AppEnvironment appEnvironment)
+			Enum.TryParse("SideloadStable", true, out AppEnvironment appEnvironment)
 				? appEnvironment
 				: AppEnvironment.Dev;
 
@@ -608,7 +608,7 @@ namespace Files.App.Helpers
 						// Try to re-launch and start over
 						MainWindow.Instance.DispatcherQueue.EnqueueOrInvokeAsync(async () =>
 						{
-							await Launcher.LaunchUriAsync(new Uri("files-dev:"));
+							await Launcher.LaunchUriAsync(new Uri("files-stable:"));
 						})
 						.Wait(100);
 					}

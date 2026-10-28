@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.Logging;
@@ -29,7 +29,7 @@ namespace Files.App.Server
 
 		// Fields
 
-		private static readonly string appEnvironment = "cd_app_env_placeholder".ToLowerInvariant();
+		private static readonly string appEnvironment = "SideloadStable".ToLowerInvariant();
 		private readonly ResourceLoader resources = ResourceLoader.GetForViewIndependentUse();
 
 		private readonly SystemTrayIconWindow _IconWindow;
@@ -274,7 +274,7 @@ namespace Files.App.Server
 
 			_lastLaunchDate = DateTime.Now;
 			if (!ServerHost.ActivateWindow())
-				_ = SafetyExtensions.IgnoreExceptions(() => Launcher.LaunchUriAsync(new Uri("files-dev:")).AsTask(), Program.Logger);
+				_ = SafetyExtensions.IgnoreExceptions(() => Launcher.LaunchUriAsync(new Uri("files-stable:")).AsTask(), Program.Logger);
 		}
 
 		private void OnDocumentationClicked()
