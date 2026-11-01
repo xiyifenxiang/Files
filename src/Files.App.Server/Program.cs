@@ -18,7 +18,16 @@ class Program
 	private static readonly FileLoggerProvider logProvider = new(Path.Combine(ApplicationData.Current.LocalFolder.Path, $"debug_server_{(Environment.IsPrivilegedProcess ? "privileged" : "unprivileged")}.log"));
 	internal static readonly ILogger Logger = logProvider.CreateLogger(nameof(Program));
 
-	static Type[] GetActivatableTypes() => [typeof(AppService)];
+	static Type[] GetActivatableTypes() =>
+	[
+		typeof(AppService),
+		typeof(DriveService),
+		typeof(FileTagsService),
+		typeof(IconService),
+		typeof(SettingsService),
+		typeof(ShellService),
+		typeof(UpdateService),
+	];
 
 	static async Task Main()
 	{
