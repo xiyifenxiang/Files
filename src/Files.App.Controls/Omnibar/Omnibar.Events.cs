@@ -19,7 +19,10 @@ namespace Files.App.Controls
 		[DynamicWindowsRuntimeCast(typeof(UIElement))]
 		private void AutoSuggestBox_GettingFocus(UIElement sender, GettingFocusEventArgs args)
 		{
-			if (args.OldFocusedElement is null)
+			// Only redirect programmatic focus changes. A pointer click on the address bar can also have no
+			// previous focused element (for example, the first click after the window is activated), and
+			// redirecting it made the click appear to be ignored instead of entering edit path mode.
+			if (args.OldFocusedElement is null && args.InputDevice is FocusInputDeviceKind.None)
 			{
 				// Window is regaining activation and restoring focus to the TextBox. TrySetNewFocusedElement can't
 				// move focus to the previously-focused item (it's often a recycled list item and gets rejected), so

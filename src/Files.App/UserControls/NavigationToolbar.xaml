@@ -351,10 +351,12 @@
 
 			<controls:OmnibarMode
 				x:Name="OmnibarSearchMode"
+				CommandInvoked="OmnibarSearchMode_CommandInvoked"
 				IconOnActive="{x:Bind GetSearchModeIcon(ViewModel.IsNaturalLanguageSearchAvailable, x:True), Mode=OneWay}"
 				IconOnInactive="{x:Bind GetSearchModeIcon(ViewModel.IsNaturalLanguageSearchAvailable, x:False), Mode=OneWay}"
 				IsAutoFocusEnabled="True"
 				IsFirstSuggestionAutoSelected="True"
+				IsModeSwitchingEnabled="False"
 				ItemsSource="{x:Bind ViewModel.OmnibarSearchModeSuggestionItems, Mode=OneWay}"
 				ModeName="{x:Bind Commands.Search.LabelWithHotKey, Mode=OneWay}"
 				PlaceholderText="{x:Bind ViewModel.OmnibarSearchModePlaceholder, Mode=OneWay}"
@@ -406,6 +408,15 @@
 					</DataTemplate>
 				</controls:OmnibarMode.ItemTemplate>
 			</controls:OmnibarMode>
+
+			<!--  Copy Address Action  -->
+			<controls:OmnibarMode
+				x:Name="OmnibarCopyAddressMode"
+				CommandInvoked="OmnibarCopyAddressMode_CommandInvoked"
+				IconOnActive="{controls:ThemedIconMarkup Style={StaticResource App.ThemedIcons.Copy}, IsFilled=True}"
+				IconOnInactive="{controls:ThemedIconMarkup Style={StaticResource App.ThemedIcons.Copy}, IconType=Outline}"
+				IsModeSwitchingEnabled="False"
+				ModeName="{helpers:ResourceString Name=CopyAddress}" />
 
 		</controls:Omnibar>
 
@@ -538,6 +549,14 @@
 			IsOpen="False"
 			Subtitle="{helpers:ResourceString Name=OngoingTasksTeachingTip/Subtitle}"
 			Target="{x:Bind ShowStatusCenterButton}" />
+
+		<!--  Address Action TeachingTip  -->
+		<TeachingTip
+			x:Name="AddressActionTeachingTip"
+			IsLightDismissEnabled="True"
+			IsOpen="False"
+			PreferredPlacement="Bottom"
+			Target="{x:Bind OmnibarCopyAddressMode}" />
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="NavigationStates">

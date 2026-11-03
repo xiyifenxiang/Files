@@ -46,6 +46,9 @@ namespace Files.App.Controls
 		[GeneratedDependencyProperty]
 		public partial bool IsFirstSuggestionAutoSelected { get; set; }
 
+		[GeneratedDependencyProperty(DefaultValue = true)]
+		public partial bool IsModeSwitchingEnabled { get; set; }
+
 		partial void OnTextChanged(string? newValue)
 		{
 			if (_ownerRef is null || _ownerRef.TryGetTarget(out var owner) is false)

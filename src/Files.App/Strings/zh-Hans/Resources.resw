@@ -4761,4 +4761,40 @@
   <data name="ConfirmRemoveTagsDialogContent" xml:space="preserve">
     <value>您确定要从所选项目中删除标签吗？</value>
   </data>
+  <data name="CopyAddress" xml:space="preserve">
+    <value>复制地址</value>
+  </data>
+  <data name="CopyAddressSucceededTitle" xml:space="preserve">
+    <value>地址已复制</value>
+  </data>
+  <data name="CopyAddressNoPathTitle" xml:space="preserve">
+    <value>无法复制地址</value>
+  </data>
+  <data name="CopyAddressNoPathContent" xml:space="preserve">
+    <value>当前位置没有可复制的文件系统路径。</value>
+  </data>
+  <data name="CopyAddressFailedTitle" xml:space="preserve">
+    <value>复制地址失败</value>
+  </data>
+  <data name="CopyAddressFailedContent" xml:space="preserve">
+    <value>无法将地址复制到剪贴板，请稍后重试。</value>
+  </data>
+  <data name="EverythingSearchTitle" xml:space="preserve">
+    <value>Everything 搜索</value>
+  </data>
+  <data name="EverythingSearchStartedContent" xml:space="preserve">
+    <value>已在 Everything 中打开当前目录，输入关键词即可搜索。</value>
+  </data>
+  <data name="EverythingSearchQueryPlaceholder" xml:space="preserve">
+    <value>在当前目录中搜索</value>
+  </data>
+  <data name="EverythingSearchNoResultsContent" xml:space="preserve">
+    <value>未找到匹配项。</value>
+  </data>
+  <data name="EverythingSearchNotInstalledContent" xml:space="preserve">
+    <value>未找到 Everything。请安装 Everything，或使用内置搜索。</value>
+  </data>
+  <data name="EverythingSearchFailedContent" xml:space="preserve">
+    <value>无法启动 Everything。</value>
+  </data>
 </root>

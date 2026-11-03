@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 using Microsoft.UI.Xaml.Input;
+using Windows.Foundation;
 using WinRT;
 
 namespace Files.App.Controls
@@ -9,6 +10,11 @@ namespace Files.App.Controls
 	[DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
 	public partial class OmnibarMode : ItemsControl
 	{
+		// Events
+
+		// Raised instead of switching modes when IsModeSwitchingEnabled is false
+		public event TypedEventHandler<OmnibarMode, EventArgs>? CommandInvoked;
+
 		// Constants
 
 		private const string TemplatePartName_ModeButton = "PART_ModeButton";
@@ -65,6 +71,12 @@ namespace Files.App.Controls
 					return;
 
 				VisualStateManager.GoToState(this, "PointerPressed", true);
+
+				if (IsModeSwitchingEnabled is false)
+				{
+					CommandInvoked?.Invoke(this, EventArgs.Empty);
+					return;
+				}
 
 				// Change the current mode
 				owner.CurrentSelectedMode = this;

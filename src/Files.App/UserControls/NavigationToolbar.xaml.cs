@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -28,6 +29,7 @@ namespace Files.App.UserControls
 		private readonly IContentPageContext ContentPageContext = Ioc.Default.GetRequiredService<IContentPageContext>();
 
 		private (OmnibarMode Mode, string Text)? _pendingOmnibarText;
+		private Microsoft.UI.Dispatching.DispatcherQueueTimer? _addressActionTipTimer;
 
 		private static readonly AccessibilitySettings AccessibilitySettings = new();
 
@@ -510,6 +512,263 @@ namespace Files.App.UserControls
 			return string.IsNullOrEmpty(workingDirectory)
 				? Constants.UserEnvironmentPaths.HomePath
 				: workingDirectory;
+		}
+
+		private void OmnibarCopyAddressMode_CommandInvoked(OmnibarMode sender, EventArgs args)
+		{
+			var path = GetCurrentAddressPath();
+			if (path is null)
+			{
+				ShowAddressActionTip(sender, Strings.CopyAddressNoPathTitle.GetLocalizedResource(), Strings.CopyAddressNoPathContent.GetLocalizedResource());
+				return;
+			}
+
+			var text = FtpHelpers.IsFtpPath(path) ? path.Replace('\\', '/') : path;
+			try
+			{
+				DataPackage data = new();
+				data.SetText(text);
+				Clipboard.SetContent(data);
+				Clipboard.Flush();
+
+				ShowAddressActionTip(sender, Strings.CopyAddressSucceededTitle.GetLocalizedResource(), text);
+			}
+			catch (Exception)
+			{
+				ShowAddressActionTip(sender, Strings.CopyAddressFailedTitle.GetLocalizedResource(), Strings.CopyAddressFailedContent.GetLocalizedResource());
+			}
+		}
+
+		private async void OmnibarSearchMode_CommandInvoked(OmnibarMode sender, EventArgs args)
+		{
+			var directory = GetCurrentAddressPath();
+			if (directory is null || !SystemIO.Directory.Exists(directory))
+			{
+				await ViewModel!.SwitchToSearchMode();
+				return;
+			}
+
+			// Open the Everything GUI first so its search box is usable immediately. Everything queries its local
+			// index, so this does not enumerate the folder here and the user can type a keyword right away.
+			var everythingPath = FindEverythingExecutable("Everything.exe");
+			if (everythingPath is not null && TryStartProcess(everythingPath, "-path", directory))
+			{
+				ShowAddressActionTip(sender, Strings.EverythingSearchTitle.GetLocalizedResource(), Strings.EverythingSearchStartedContent.GetLocalizedResource());
+				return;
+			}
+
+			// Only the ES command-line tool is available. Ask for a keyword before searching so it never
+			// enumerates the whole folder, then show the matching paths.
+			var esPath = FindEverythingExecutable("es.exe");
+			if (esPath is not null)
+			{
+				var query = await ShowEverythingQueryDialogAsync();
+				if (query is null)
+					return;
+
+				var output = await RunEverythingQueryAsync(esPath, directory, query);
+				if (output is not null)
+				{
+					if (string.IsNullOrWhiteSpace(output))
+					{
+						await DialogDisplayHelper.ShowDialogAsync(
+							Strings.EverythingSearchTitle.GetLocalizedResource(),
+							Strings.EverythingSearchNoResultsContent.GetLocalizedResource(),
+							Strings.Close.GetLocalizedResource());
+					}
+					else
+					{
+						await ShowEverythingResultsDialogAsync(output);
+					}
+
+					return;
+				}
+			}
+
+			await DialogDisplayHelper.ShowDialogAsync(
+				Strings.EverythingSearchTitle.GetLocalizedResource(),
+				everythingPath is not null
+					? Strings.EverythingSearchFailedContent.GetLocalizedResource()
+					: Strings.EverythingSearchNotInstalledContent.GetLocalizedResource(),
+				Strings.Close.GetLocalizedResource());
+
+			await ViewModel!.SwitchToSearchMode();
+		}
+
+		private static async Task<string?> ShowEverythingQueryDialogAsync()
+		{
+			TextBox queryBox = new()
+			{
+				PlaceholderText = Strings.EverythingSearchQueryPlaceholder.GetLocalizedResource()
+			};
+
+			ContentDialog dialog = new()
+			{
+				Title = Strings.EverythingSearchTitle.GetLocalizedResource(),
+				Content = queryBox,
+				PrimaryButtonText = Strings.Search.GetLocalizedResource(),
+				CloseButtonText = Strings.Cancel.GetLocalizedResource(),
+				DefaultButton = ContentDialogButton.Primary
+			};
+
+			var result = await dialog.TryShowAsync();
+
+			var query = queryBox.Text.Trim();
+			return result == ContentDialogResult.Primary && query.Length > 0 ? query : null;
+		}
+
+		private static async Task<string?> RunEverythingQueryAsync(string esPath, string directory, string query)
+		{
+			try
+			{
+				ProcessStartInfo startInfo = new()
+				{
+					FileName = esPath,
+					UseShellExecute = false,
+					CreateNoWindow = true,
+					RedirectStandardOutput = true
+				};
+				startInfo.ArgumentList.Add("-path");
+				startInfo.ArgumentList.Add(directory);
+				startInfo.ArgumentList.Add("-max-results");
+				startInfo.ArgumentList.Add("100");
+				startInfo.ArgumentList.Add(query);
+
+				using var process = Process.Start(startInfo);
+				if (process is null)
+					return null;
+
+				var outputTask = process.StandardOutput.ReadToEndAsync();
+
+				using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+				try
+				{
+					await process.WaitForExitAsync(timeout.Token);
+				}
+				catch (OperationCanceledException)
+				{
+					process.Kill(true);
+					return null;
+				}
+
+				return await outputTask;
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
+
+		private static async Task ShowEverythingResultsDialogAsync(string output)
+		{
+			var paths = output
+				.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+				.Take(100);
+
+			TextBox resultsBox = new()
+			{
+				AcceptsReturn = true,
+				IsReadOnly = true,
+				MaxHeight = 360,
+				Text = string.Join(Environment.NewLine, paths),
+				TextWrapping = TextWrapping.Wrap
+			};
+
+			ContentDialog dialog = new()
+			{
+				Title = Strings.EverythingSearchTitle.GetLocalizedResource(),
+				Content = resultsBox,
+				CloseButtonText = Strings.Close.GetLocalizedResource()
+			};
+
+			await dialog.TryShowAsync();
+		}
+
+		private string? GetCurrentAddressPath()
+		{
+			var workingDirectory = ContentPageContext.ShellPage?.ShellViewModel?.WorkingDirectory;
+			if (string.IsNullOrWhiteSpace(workingDirectory))
+				return null;
+
+			return SystemIO.Path.IsPathRooted(workingDirectory) || FtpHelpers.IsFtpPath(workingDirectory)
+				? workingDirectory
+				: null;
+		}
+
+		private static string? FindEverythingExecutable(string fileName)
+		{
+			var roots = new[]
+			{
+				Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+				Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+				Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
+			};
+
+			foreach (var root in roots)
+			{
+				if (string.IsNullOrEmpty(root))
+					continue;
+
+				var candidate = SystemIO.Path.Combine(root, "Everything", fileName);
+				if (SystemIO.File.Exists(candidate))
+					return candidate;
+			}
+
+			var pathVariable = Environment.GetEnvironmentVariable("PATH");
+			if (pathVariable is null)
+				return null;
+
+			foreach (var directory in pathVariable.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			{
+				var candidate = SystemIO.Path.Combine(directory, fileName);
+				if (SystemIO.File.Exists(candidate))
+					return candidate;
+			}
+
+			return null;
+		}
+
+		private static bool TryStartProcess(string executablePath, params string[] arguments)
+		{
+			try
+			{
+				ProcessStartInfo startInfo = new()
+				{
+					FileName = executablePath,
+					UseShellExecute = false,
+					CreateNoWindow = true
+				};
+				foreach (var argument in arguments)
+					startInfo.ArgumentList.Add(argument);
+
+				Process.Start(startInfo);
+				return true;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		private void ShowAddressActionTip(OmnibarMode target, string title, string? subtitle = null)
+		{
+			AddressActionTeachingTip.Target = target;
+			AddressActionTeachingTip.Title = title;
+			AddressActionTeachingTip.Subtitle = subtitle ?? string.Empty;
+			AddressActionTeachingTip.IsOpen = true;
+
+			_addressActionTipTimer ??= CreateAddressActionTipTimer();
+			_addressActionTipTimer.Stop();
+			_addressActionTipTimer.Start();
+		}
+
+		private Microsoft.UI.Dispatching.DispatcherQueueTimer CreateAddressActionTipTimer()
+		{
+			var timer = DispatcherQueue.CreateTimer();
+			timer.Interval = TimeSpan.FromSeconds(3);
+			timer.IsRepeating = false;
+			timer.Tick += (_, _) => AddressActionTeachingTip.IsOpen = false;
+			return timer;
 		}
 
 		private void Omnibar_FocusRedirectRequested(Omnibar sender, EventArgs args)

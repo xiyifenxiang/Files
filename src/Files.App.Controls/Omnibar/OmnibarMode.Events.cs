@@ -49,6 +49,12 @@ namespace Files.App.Controls
 			if (_ownerRef is null || _ownerRef.TryGetTarget(out var owner) is false || owner.CurrentSelectedMode == this)
 				return;
 
+			if (IsModeSwitchingEnabled is false)
+			{
+				CommandInvoked?.Invoke(this, EventArgs.Empty);
+				return;
+			}
+
 			owner.CurrentSelectedMode = this;
 		}
 	}
