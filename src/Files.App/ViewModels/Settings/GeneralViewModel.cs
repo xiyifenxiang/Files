@@ -170,6 +170,14 @@ namespace Files.App.ViewModels.Settings
 					SelectedPageIndex = -1;
 				}
 			}
+			if (name is null or nameof(IGeneralSettingsService.KnownShellExtensionNames))
+			{
+				LoadShellExtensionOptions();
+			}
+			else if (name is nameof(IGeneralSettingsService.PinnedShellExtensions))
+			{
+				SyncShellExtensionSelection();
+			}
 			OnPropertyChanged(name ?? string.Empty);
 		}
 
@@ -576,7 +584,7 @@ namespace Files.App.ViewModels.Settings
 
 		private void ShellExtensionOption_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName is not nameof(ShellExtensionOptionViewModel.IsSelected) || sender is not ShellExtensionOptionViewModel item)
+			if (isSyncingShellExtensionSelection || e.PropertyName is not nameof(ShellExtensionOptionViewModel.IsSelected) || sender is not ShellExtensionOptionViewModel item)
 				return;
 
 			var pinned = GetExtensionNameSet(UserSettingsService.GeneralSettingsService.PinnedShellExtensions);
@@ -633,6 +641,25 @@ namespace Files.App.ViewModels.Settings
 
 		private void SavePinnedExtensionNames(IEnumerable<string> names)
 			=> UserSettingsService.GeneralSettingsService.PinnedShellExtensions = string.Join(", ", names);
+
+		private bool isSyncingShellExtensionSelection;
+
+		private void SyncShellExtensionSelection()
+		{
+			var pinned = GetExtensionNameSet(UserSettingsService.GeneralSettingsService.PinnedShellExtensions);
+			isSyncingShellExtensionSelection = true;
+			try
+			{
+				foreach (var option in allShellExtensionOptions)
+					option.IsSelected = pinned.Contains(option.Name);
+			}
+			finally
+			{
+				isSyncingShellExtensionSelection = false;
+			}
+
+			UpdatePinnedShellExtensionsSummary();
+		}
 
 		private void UpdatePinnedShellExtensionsSummary()
 		{

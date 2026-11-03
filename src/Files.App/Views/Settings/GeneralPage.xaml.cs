@@ -3,6 +3,7 @@
 
 using Files.App.ViewModels.Settings;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Files.App.Views.Settings
@@ -27,6 +28,14 @@ namespace Files.App.Views.Settings
 		{
 			if (sender is FrameworkElement { DataContext: ShellExtensionOptionViewModel option })
 				ViewModel.RemoveShellExtensionCommand.Execute(option);
+		}
+
+		private void ShellExtensionListView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+		{
+			if (args.InRecycleQueue || args.Item is not ShellExtensionOptionViewModel option)
+				return;
+
+			AutomationProperties.SetName(args.ItemContainer, option.Name);
 		}
 
 		private Visibility HasShellExtensionCandidatesToVisibility(bool hasCandidates)

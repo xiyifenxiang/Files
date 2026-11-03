@@ -391,6 +391,7 @@
 							Grid.Row="2"
 							MaxHeight="240"
 							HorizontalAlignment="Stretch"
+							ContainerContentChanging="ShellExtensionListView_ContainerContentChanging"
 							ItemsSource="{x:Bind ViewModel.ShellExtensionOptions, Mode=OneWay}"
 							SelectionMode="None">
 							<ListView.ItemContainerStyle>
