@@ -1,4 +1,4 @@
-﻿// Copyright (c) Files Community
+// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Windows.Foundation;
@@ -14,8 +14,8 @@ namespace Files.App.Controls
 
 		private readonly WeakReference<BreadcrumbBar>? _ownerRef;
 
-		private Size _availableSize;
 		private BreadcrumbBarItem? _ellipsisButton = null;
+		private int _measureIndexAfterEllipsis;
 
 		// Properties
 
@@ -31,27 +31,37 @@ namespace Files.App.Controls
 		protected override Size MeasureOverride(NonVirtualizingLayoutContext context, Size availableSize)
 		{
 			var accumulatedSize = new Size(0, 0);
-			_availableSize = availableSize;
 
-			var indexAfterEllipsis = GetFirstIndexToRender(context);
-
-			// Go through all items and measure them
+			// Items are measured first so the collapse index is based on the current
+			// item widths. Measuring after the index was calculated left it using the
+			// previous pass' desired sizes, which are stale after navigating or resizing.
 			for (int index = 0; index < context.Children.Count; index++)
 			{
 				if (context.Children[index] is BreadcrumbBarItem breadcrumbItem)
 				{
 					breadcrumbItem.Measure(availableSize);
-					accumulatedSize.Width += index < indexAfterEllipsis ? 0 : breadcrumbItem.DesiredSize.Width;
 					accumulatedSize.Height = Math.Max(accumulatedSize.Height, breadcrumbItem.DesiredSize.Height);
 				}
+			}
+
+			_measureIndexAfterEllipsis = GetFirstIndexToRender(context, availableSize.Width);
+			EllipsisIsRendered = _measureIndexAfterEllipsis is not 0;
+
+			for (int index = _measureIndexAfterEllipsis; index < context.Children.Count; index++)
+			{
+				if (context.Children[index] is BreadcrumbBarItem breadcrumbItem)
+					accumulatedSize.Width += breadcrumbItem.DesiredSize.Width;
 			}
 
 			// Get a reference to the ellipsis item
 			if (context.Children.Count > 0)
 				_ellipsisButton ??= context.Children[0] as BreadcrumbBarItem;
 
-			// Sets the ellipsis item's visibility based on whether the items are overflowing
-			EllipsisIsRendered = indexAfterEllipsis is not 0;
+			// Report the full available width instead of only the visible items' width.
+			// A collapsed pass used to report 0, which shrank the repeater to zero width;
+			// it then had no viewport left to realize items again and stayed empty.
+			if (!double.IsInfinity(availableSize.Width))
+				accumulatedSize.Width = availableSize.Width;
 
 			return accumulatedSize;
 		}
@@ -60,7 +70,13 @@ namespace Files.App.Controls
 		{
 			double accumulatedWidths = 0d;
 
-			IndexAfterEllipsis = GetFirstIndexToRender(context);
+			// The repeater fills the available column, so the arranged width is the real
+			// available width and can be used to recalculate the collapse index.
+			IndexAfterEllipsis = double.IsInfinity(finalSize.Width)
+				? _measureIndexAfterEllipsis
+				: GetFirstIndexToRender(context, finalSize.Width);
+
+			EllipsisIsRendered = IndexAfterEllipsis is not 0;
 			VisibleItemsCount = 0;
 
 			// Go through all items and arrange them
@@ -88,25 +104,29 @@ namespace Files.App.Controls
 			if (_ownerRef?.TryGetTarget(out var breadcrumbBar) ?? false)
 				breadcrumbBar.OnLayoutUpdated();
 
-			finalSize.Width = accumulatedWidths;
+			// Keep the width that was assigned to the repeater. Reporting the arranged
+			// item widths made the repeater shrink itself (down to 0 when everything
+			// was collapsed) and it never regained enough space to realize items again.
+			if (double.IsInfinity(finalSize.Width))
+				finalSize.Width = accumulatedWidths;
 
 			return finalSize;
 		}
 
-		private int GetFirstIndexToRender(NonVirtualizingLayoutContext context)
+		private int GetFirstIndexToRender(NonVirtualizingLayoutContext context, double availableWidth)
 		{
 			var itemCount = context.Children.Count;
 			var accumulatedWidth = 0d;
 
 			// Handle zero or negative available width - hide all items
-			if (_availableSize.Width <= 0)
+			if (availableWidth <= 0)
 				return itemCount;
 
 			// Go through all items from the last item
 			for (int index = itemCount - 1; index >= 0; index--)
 			{
 				var newAccumulatedWidth = accumulatedWidth + context.Children[index].DesiredSize.Width;
-				if (newAccumulatedWidth >= _availableSize.Width)
+				if (newAccumulatedWidth >= availableWidth)
 					return index + 1;
 
 				accumulatedWidth = newAccumulatedWidth;

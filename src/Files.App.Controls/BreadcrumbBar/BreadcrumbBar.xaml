@@ -76,7 +76,7 @@
 							x:Name="PART_MainItemsRepeater"
 							Grid.Column="2"
 							Margin="{StaticResource BreadcrumbBarItemMargin}"
-							HorizontalAlignment="Left"
+							HorizontalAlignment="Stretch"
 							ItemTemplate="{TemplateBinding ItemTemplate}"
 							ItemsSource="{TemplateBinding ItemsSource}" />
 
