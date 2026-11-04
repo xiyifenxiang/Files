@@ -125,11 +125,12 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="local:OmnibarMode">
+					<!--  The stretched mode surface must stay non-hit-testable in empty areas, otherwise clicks to the right of the breadcrumbs get swallowed instead of focusing the Omnibar TextBox to enter path edit mode.  -->
 					<Grid
 						x:Name="PART_RootGrid"
 						Height="{TemplateBinding Height}"
 						HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-						Background="{TemplateBinding Background}">
+						Background="{x:Null}">
 						<!--  Mode Button  -->
 						<Button
 							x:Name="PART_ModeButton"
