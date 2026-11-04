@@ -4779,9 +4779,6 @@
   <data name="CopyAddress" xml:space="preserve">
     <value>Copy address</value>
   </data>
-  <data name="CopyAddressSucceededTitle" xml:space="preserve">
-    <value>Address copied</value>
-  </data>
   <data name="CopyAddressNoPathTitle" xml:space="preserve">
     <value>Nothing to copy</value>
   </data>
@@ -4796,9 +4793,6 @@
   </data>
   <data name="EverythingSearchTitle" xml:space="preserve">
     <value>Everything search</value>
-  </data>
-  <data name="EverythingSearchStartedContent" xml:space="preserve">
-    <value>Everything was opened for the current folder. Type a keyword to search.</value>
   </data>
   <data name="EverythingSearchQueryPlaceholder" xml:space="preserve">
     <value>Search the current folder</value>

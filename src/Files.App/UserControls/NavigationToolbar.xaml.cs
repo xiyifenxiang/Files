@@ -530,8 +530,6 @@ namespace Files.App.UserControls
 				data.SetText(text);
 				Clipboard.SetContent(data);
 				Clipboard.Flush();
-
-				ShowAddressActionTip(sender, Strings.CopyAddressSucceededTitle.GetLocalizedResource(), text);
 			}
 			catch (Exception)
 			{
@@ -552,10 +550,7 @@ namespace Files.App.UserControls
 			// index, so this does not enumerate the folder here and the user can type a keyword right away.
 			var everythingPath = FindEverythingExecutable("Everything.exe");
 			if (everythingPath is not null && TryStartProcess(everythingPath, "-path", directory))
-			{
-				ShowAddressActionTip(sender, Strings.EverythingSearchTitle.GetLocalizedResource(), Strings.EverythingSearchStartedContent.GetLocalizedResource());
 				return;
-			}
 
 			// Only the ES command-line tool is available. Ask for a keyword before searching so it never
 			// enumerates the whole folder, then show the matching paths.

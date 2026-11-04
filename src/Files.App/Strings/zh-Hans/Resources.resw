@@ -4764,9 +4764,6 @@
   <data name="CopyAddress" xml:space="preserve">
     <value>复制地址</value>
   </data>
-  <data name="CopyAddressSucceededTitle" xml:space="preserve">
-    <value>地址已复制</value>
-  </data>
   <data name="CopyAddressNoPathTitle" xml:space="preserve">
     <value>无法复制地址</value>
   </data>
@@ -4781,9 +4778,6 @@
   </data>
   <data name="EverythingSearchTitle" xml:space="preserve">
     <value>Everything 搜索</value>
-  </data>
-  <data name="EverythingSearchStartedContent" xml:space="preserve">
-    <value>已在 Everything 中打开当前目录，输入关键词即可搜索。</value>
   </data>
   <data name="EverythingSearchQueryPlaceholder" xml:space="preserve">
     <value>在当前目录中搜索</value>
