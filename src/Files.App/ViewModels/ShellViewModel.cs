@@ -3119,13 +3119,60 @@ namespace Files.App.ViewModels
 										{
 											operationQueue.TryDequeue(out _);
 											var newPath = nextOp.FileName;
-											await dispatcherQueue.EnqueueOrInvokeAsync(() =>
+											var isFile = renamed.PrimaryItemAttribute == StorageItemTypes.File;
+											var oldExtension = isFile ? renamed.FileExtension : null;
+											var newExtension = isFile ? Path.GetExtension(newPath) : null;
+
+											// A changed extension (e.g. a download's ".crdownload" becoming ".pptx")
+											// invalidates the preloaded icon, the type name, and the type group
+											if (isFile && !string.Equals(oldExtension, newExtension, StringComparison.OrdinalIgnoreCase))
 											{
-												renamed.ItemPath = newPath;
-												renamed.ItemNameRaw = Path.GetFileName(newPath);
-												if (renamed.PrimaryItemAttribute == StorageItemTypes.File)
-													renamed.FileExtension = Path.GetExtension(newPath);
-											});
+												var preloadedIconData = await iconCacheService.GetIconAsync(newPath, newExtension, false, GetPreloadIconSize());
+
+												await dispatcherQueue.EnqueueOrInvokeAsync(async () =>
+												{
+													renamed.ItemPath = newPath;
+													renamed.ItemNameRaw = Path.GetFileName(newPath);
+													renamed.FileExtension = newExtension;
+													renamed.PreloadedIconData = preloadedIconData;
+
+													var localizedType = FileTypesHelper.GetLocalizedTypeName(newExtension);
+													renamed.ItemType = !string.IsNullOrEmpty(localizedType)
+														? localizedType
+														: newExtension!.Trim('.') + " " + Strings.File.GetLocalizedResource();
+
+													// Drop the stale icon so it reloads for the new extension
+													renamed.FileImage = null;
+													renamed.IconOverlay = null;
+													renamed.ItemPropertiesInitialized = false;
+
+													// Move the item to its correct group when the new extension changes its group key
+													if (FilesAndFolders.UpdateItemGroup(renamed))
+													{
+														FilesAndFolders.BeginBulkOperation();
+														try
+														{
+															OrderGroups();
+														}
+														finally
+														{
+															FilesAndFolders.EndBulkOperation();
+														}
+													}
+
+													await LoadExtendedItemPropertiesAsync(renamed);
+												});
+											}
+											else
+											{
+												await dispatcherQueue.EnqueueOrInvokeAsync(() =>
+												{
+													renamed.ItemPath = newPath;
+													renamed.ItemNameRaw = Path.GetFileName(newPath);
+													if (isFile)
+														renamed.FileExtension = newExtension;
+												});
+											}
 										}
 										else
 										{
