@@ -1,4 +1,4 @@
-﻿<!--  Copyright (c) Files Community. Licensed under the MIT License.  -->
+<!--  Copyright (c) Files Community. Licensed under the MIT License.  -->
 <Project Sdk="Microsoft.NET.Sdk">
 
     <Sdk Name="PublishWithSatoriGC" Version="10.0.15-satori.42242472690.2" />
@@ -39,7 +39,7 @@
         <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
         <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
         <PublishReadyToRunComposite Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRunComposite>
-        <ApplicationIcon>Assets\AppTiles\Release\Logo.ico</ApplicationIcon>
+        <ApplicationIcon>Assets\AppTiles\Dev\Logo.ico</ApplicationIcon>
         <IsTrimmable>true</IsTrimmable>
         <IsAotCompatible>true</IsAotCompatible>
         <IlcGenerateMstatFile>true</IlcGenerateMstatFile>

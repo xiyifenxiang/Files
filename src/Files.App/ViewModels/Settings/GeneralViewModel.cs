@@ -1,4 +1,4 @@
-﻿// Copyright (c) Files Community
+// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using System.Collections.Specialized;
@@ -190,7 +190,7 @@ namespace Files.App.ViewModels.Settings
 			AppLifecycleHelper.SaveSessionTabs();
 
 			// Launches a new instance of Files
-			await Launcher.LaunchUriAsync(new Uri("files-stable:"));
+			await Launcher.LaunchUriAsync(new Uri("files-dev:"));
 
 			// Closes the current instance
 			Environment.Exit(0);

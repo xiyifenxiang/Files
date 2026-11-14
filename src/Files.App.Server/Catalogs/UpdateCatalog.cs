@@ -15,7 +15,7 @@ namespace Files.App.Server;
 
 internal static class UpdateCatalog
 {
-	private static readonly string environment = "SideloadStable".ToLowerInvariant();
+	private static readonly string environment = "cd_app_env_placeholder".ToLowerInvariant();
 	private static readonly HttpClient client = new(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(3) });
 	private static readonly TimeSpan interval = environment.Contains("preview", StringComparison.Ordinal) ? TimeSpan.FromHours(2) : TimeSpan.FromHours(5);
 	private static readonly CancellationTokenSource stopping = new();
@@ -129,7 +129,7 @@ internal static class UpdateCatalog
 				try
 				{
 					var branch = await File.ReadAllTextAsync(branchFilePath, Encoding.UTF8);
-					if (!string.Equals(branch.Trim(), "files-stable", StringComparison.OrdinalIgnoreCase))
+					if (!string.Equals(branch.Trim(), "files-dev", StringComparison.OrdinalIgnoreCase))
 						return;
 				}
 				catch
@@ -141,7 +141,7 @@ internal static class UpdateCatalog
 				try
 				{
 					// Create branch file for users updating from versions earlier than v4.0.20.
-					await File.WriteAllTextAsync(branchFilePath, "files-stable", Encoding.UTF8);
+					await File.WriteAllTextAsync(branchFilePath, "files-dev", Encoding.UTF8);
 				}
 				catch
 				{
