@@ -1450,7 +1450,12 @@ namespace Files.App.Views.Layouts
 				_ = SafetyExtensions.IgnoreExceptions(async () =>
 				{
 					if (ParentShellPageInstance?.ShellViewModel != shellViewModel || !ReferenceEquals(ItemsControl.ItemFromContainer(container), item))
+					{
+#region debug-point DBG-RENAME-ICON-8
+						App.Logger.LogInformation("DBG-RENAME-ICON: realization load skipped (container churn) Item={I}", item.ItemPath.GetHashCode());
+#endregion
 						return;
+					}
 
 					await load(shellViewModel);
 				}, App.Logger);

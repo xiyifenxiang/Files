@@ -1862,8 +1862,11 @@ namespace Files.App.ViewModels
 					if (loadGroupHeaderInfo && isFileTypeGroupMode)
 						groupImage = await GetItemTypeGroupIcon(item, matchingStorageFile);
 				}
-				catch (Exception)
+				catch (Exception ex)
 				{
+#region debug-point DBG-RENAME-ICON-6
+					App.Logger.LogInformation("DBG-RENAME-ICON: extended load inner failure Item={I} Ex={X}", item.ItemPath.GetHashCode(), ex.GetType().Name);
+#endregion
 				}
 				finally
 				{
@@ -1916,7 +1919,9 @@ namespace Files.App.ViewModels
 			}
 			catch (OperationCanceledException)
 			{
-				// Ignored
+#region debug-point DBG-RENAME-ICON-7
+				App.Logger.LogInformation("DBG-RENAME-ICON: extended load canceled Item={I}", item.ItemPath.GetHashCode());
+#endregion
 			}
 			finally
 			{
@@ -3096,6 +3101,11 @@ namespace Files.App.ViewModels
 										lastItemAdded = await AddFileOrFolderAsync(operation.FileName);
 										if (lastItemAdded is not null)
 											anyEdits = true;
+#region debug-point DBG-RENAME-ICON-2
+										if (lastItemAdded is not null)
+											App.Logger.LogInformation("DBG-RENAME-ICON: added Action={A} FileImageNull={F} PreloadedNull={P} Ext={E}",
+												operation.Action, lastItemAdded.FileImage is null, lastItemAdded.PreloadedIconData is null, lastItemAdded.FileExtension);
+#endregion
 										break;
 
 									case FILE_ACTION_MODIFIED:
@@ -3129,6 +3139,10 @@ namespace Files.App.ViewModels
 											{
 												var preloadedIconData = await iconCacheService.GetIconAsync(newPath, newExtension, false, GetPreloadIconSize());
 
+#region debug-point DBG-RENAME-ICON-1
+												App.Logger.LogInformation("DBG-RENAME-ICON: paired Ext {O}->{N} PreloadedNull={P}",
+													oldExtension, newExtension, preloadedIconData is null);
+#endregion
 												await dispatcherQueue.EnqueueOrInvokeAsync(async () =>
 												{
 													renamed.ItemPath = newPath;
@@ -3161,10 +3175,17 @@ namespace Files.App.ViewModels
 													}
 
 													await LoadExtendedItemPropertiesAsync(renamed);
+#region debug-point DBG-RENAME-ICON-3
+													App.Logger.LogInformation("DBG-RENAME-ICON: refresh done FileImageNull={F} Init={I}",
+														renamed.FileImage is null, renamed.ItemPropertiesInitialized);
+#endregion
 												});
 											}
 											else
 											{
+#region debug-point DBG-RENAME-ICON-4
+												App.Logger.LogInformation("DBG-RENAME-ICON: unpaired OLD_NAME Item={I}", LogPathHelper.RedactPath(operation.FileName));
+#endregion
 												await dispatcherQueue.EnqueueOrInvokeAsync(() =>
 												{
 													renamed.ItemPath = newPath;
@@ -3176,6 +3197,9 @@ namespace Files.App.ViewModels
 										}
 										else
 										{
+#region debug-point DBG-RENAME-ICON-5
+											App.Logger.LogInformation("DBG-RENAME-ICON: pairing failed (no NEW_NAME or item missing) Item={I}", LogPathHelper.RedactPath(operation.FileName));
+#endregion
 											var itemRenamedOld = await RemoveFileOrFolderAsync(operation.FileName);
 											if (itemRenamedOld is not null)
 												anyEdits = true;
