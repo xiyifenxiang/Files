@@ -6,6 +6,7 @@ using Files.App.Controls;
 using Files.App.Helpers.ContextFlyouts;
 using Files.App.UserControls.Menus;
 using Files.App.ViewModels.Layouts;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -1452,7 +1453,7 @@ namespace Files.App.Views.Layouts
 					if (ParentShellPageInstance?.ShellViewModel != shellViewModel || !ReferenceEquals(ItemsControl.ItemFromContainer(container), item))
 					{
 #region debug-point DBG-RENAME-ICON-8
-						App.Logger.LogInformation("DBG-RENAME-ICON: realization load skipped (container churn) Item={I}", item.ItemPath.GetHashCode());
+						App.Logger.LogInformation("DBG-RENAME-ICON: realization load skipped (container churn) Item={I}", item.GetRequiredPath().GetHashCode());
 #endregion
 						return;
 					}

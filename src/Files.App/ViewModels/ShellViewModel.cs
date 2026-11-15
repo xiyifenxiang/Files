@@ -1865,7 +1865,7 @@ namespace Files.App.ViewModels
 				catch (Exception ex)
 				{
 #region debug-point DBG-RENAME-ICON-6
-					App.Logger.LogInformation("DBG-RENAME-ICON: extended load inner failure Item={I} Ex={X}", item.ItemPath.GetHashCode(), ex.GetType().Name);
+					App.Logger.LogInformation("DBG-RENAME-ICON: extended load inner failure Item={I} Ex={X}", item.GetRequiredPath().GetHashCode(), ex.GetType().Name);
 #endregion
 				}
 				finally
@@ -1920,7 +1920,7 @@ namespace Files.App.ViewModels
 			catch (OperationCanceledException)
 			{
 #region debug-point DBG-RENAME-ICON-7
-				App.Logger.LogInformation("DBG-RENAME-ICON: extended load canceled Item={I}", item.ItemPath.GetHashCode());
+				App.Logger.LogInformation("DBG-RENAME-ICON: extended load canceled Item={I}", item.GetRequiredPath().GetHashCode());
 #endregion
 			}
 			finally
